@@ -1,0 +1,7 @@
+# 如果请求的文件不存在，重写到index.php
+location / {
+            if (!-e $request_filename) {
+                 rewrite ^(.*)$ /index.php?s=/$1 last;
+                 break;
+            }    
+        }
