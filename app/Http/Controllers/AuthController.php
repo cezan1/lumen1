@@ -20,8 +20,14 @@ class AuthController extends BaseController
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',//每个用户的邮箱必须唯一
             'password' => 'required|string|min:6',
+        ], [
+            'name.required' => '姓名字段为必填项。',
+            'email.required' => '邮箱字段为必填项。',
+            'password.required' => '密码字段为必填项。',
+            'email.unique' => '该邮箱已被注册。',//每个用户的邮箱必须唯一
+            'password.min' => '密码长度不能小于6位。',//密码长度不能小于6位
         ]);
 
         $user = User::create([
@@ -44,10 +50,13 @@ class AuthController extends BaseController
         $this->validate($request, [
             'email' => 'required|string|email',
             'password' => 'required|string',
+        ], [
+            'email.required' => '邮箱字段为必填项。',
+            'password.required' => '密码字段为必填项。',
         ]);
 
         $credentials = $request->only(['email', 'password']);
-
+  
         if (! $token = Auth::attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
