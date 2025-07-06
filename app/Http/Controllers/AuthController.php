@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use App\Utils\RedisHelper;
+use App\Utils\ResponseHelper;
 
 class AuthController extends BaseController
 {
@@ -28,6 +30,11 @@ class AuthController extends BaseController
             'password.required' => '密码字段为必填项。',
             'email.unique' => '该邮箱已被注册。',//每个用户的邮箱必须唯一
             'password.min' => '密码长度不能小于6位。',//密码长度不能小于6位
+            'email.email' => '邮箱格式错误。',
+        ], [
+            'name' => '姓名',
+            'email' => '邮箱',
+            'password' => '密码',
         ]);
 
         $user = User::create([
@@ -36,7 +43,7 @@ class AuthController extends BaseController
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json($user, 201);
+        return ResponseHelper::successResponse($user, '注册成功', 201);
     }
 
     /**
@@ -56,12 +63,15 @@ class AuthController extends BaseController
         ]);
 
         $credentials = $request->only(['email', 'password']);
-  
+
         if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return ResponseHelper::errorResponse('Unauthorized', 401);
         }
 
-        return $this->respondWithToken($token);
+        $user = Auth::user();
+        RedisHelper::set("user:{$user->id}:token", $token, 1800);
+
+        return ResponseHelper::successResponse($this->respondWithToken($token)->getData(), '登录成功');
     }
 
     /**
@@ -69,9 +79,9 @@ class AuthController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me()
+    public function getUserInfo()
     {
-        return response()->json(Auth::user());
+        return ResponseHelper::successResponse(Auth::user(), '获取用户信息成功');
     }
 
     /**
@@ -81,8 +91,12 @@ class AuthController extends BaseController
      */
     public function logout()
     {
+        $user = Auth::user();
+        if ($user) {
+            RedisHelper::delete("user:{$user->id}:token");
+        }
         Auth::logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        return ResponseHelper::successResponse([], '退出登录成功');
     }
 
     /**
@@ -92,7 +106,10 @@ class AuthController extends BaseController
      */
     public function refresh()
     {
-        return $this->respondWithToken(Auth::refresh());
+        $user = Auth::user();
+        $newToken = Auth::refresh();
+        RedisHelper::set("user:{$user->id}:token", $newToken, 1800);
+        return ResponseHelper::successResponse($this->respondWithToken($newToken)->getData(), '令牌刷新成功');
     }
 
     /**

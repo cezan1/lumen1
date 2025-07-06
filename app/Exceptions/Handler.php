@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+use App\Utils\ResponseHelper;
 
 class Handler extends ExceptionHandler
 {
@@ -49,6 +50,20 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        if ($exception instanceof ValidationException) {
+            $errors = $exception->errors();
+            $firstError = reset($errors);
+            return ResponseHelper::errorResponse($firstError[0], 422);
+        }
+        if ($exception instanceof AuthorizationException) {
+            return ResponseHelper::errorResponse($exception->getMessage(), 403);
+        }
+        if ($exception instanceof ModelNotFoundException) {
+            return ResponseHelper::errorResponse('资源未找到', 404);
+        }
+        if ($exception instanceof HttpException) {
+            return ResponseHelper::errorResponse($exception->getMessage(), $exception->getStatusCode());
+        }
+        return ResponseHelper::errorResponse('服务器内部错误', 500);
     }
 }

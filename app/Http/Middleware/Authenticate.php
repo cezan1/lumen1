@@ -4,6 +4,9 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use App\Utils\RedisHelper;
+use App\Constants\ResponseCode;
+use App\Utils\ResponseHelper;
 
 class Authenticate
 {
@@ -35,8 +38,17 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        $guard = $guard ?? 'api';
         if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+            return ResponseHelper::errorResponse(ResponseCode::UNAUTHORIZED[1], ResponseCode::UNAUTHORIZED[0]);
+        }
+
+        $user = $this->auth->guard($guard)->user();
+        $token = $request->bearerToken();
+        $storedToken = RedisHelper::get("user:{$user->id}:token");
+
+        if ($token !== $storedToken) {
+            return ResponseHelper::errorResponse(ResponseCode::UNAUTHORIZED[1], ResponseCode::UNAUTHORIZED[0]);
         }
 
         return $next($request);
