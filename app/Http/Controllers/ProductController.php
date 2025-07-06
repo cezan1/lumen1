@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
+use App\Utils\ResponseHelper;
 
 class ProductController extends Controller
 {
@@ -18,7 +19,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json(['data' => $products], 200);
+        return ResponseHelper::successResponse($products);
     }
 
     /**
@@ -38,11 +39,11 @@ class ProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            return ResponseHelper::errorResponse($validator->errors());
         }
 
         $product = Product::create($request->all());
-        return response()->json(['data' => $product], 201);
+        return ResponseHelper::successResponse($product);
     }
 
     /**
@@ -56,10 +57,10 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['message' => ResponseCode::PRODUCT_NOT_FOUND[1]], ResponseCode::PRODUCT_NOT_FOUND[0]);
+            return ResponseHelper::successResponse([],ResponseCode::PRODUCT_NOT_FOUND);
         }
 
-        return response()->json(['data' => $product], 200);
+        return ResponseHelper::successResponse($product);
     }
 
     /**
@@ -74,7 +75,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['message' => ResponseCode::PRODUCT_NOT_FOUND[1]], ResponseCode::PRODUCT_NOT_FOUND[0]);
+            return ResponseHelper::successResponse([],ResponseCode::PRODUCT_NOT_FOUND);
         }
 
         $validator = Validator::make($request->all(), [
@@ -86,11 +87,11 @@ class ProductController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
+            return ResponseHelper::errorResponse($validator->errors());
         }
 
         $product->update($request->all());
-        return response()->json(['data' => $product], 200);
+        return ResponseHelper::successResponse([],ResponseCode::SUCCESS);
     }
 
     /**
@@ -104,7 +105,7 @@ class ProductController extends Controller
         $product = Product::find($id);
 
         if (!$product) {
-            return response()->json(['message' => ResponseCode::PRODUCT_NOT_FOUND[1]], ResponseCode::PRODUCT_NOT_FOUND[0]);
+            return ResponseHelper::successResponse([],ResponseCode::PRODUCT_NOT_FOUND);
         }
 
         $product->delete();

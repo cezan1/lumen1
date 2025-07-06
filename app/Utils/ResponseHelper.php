@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use Illuminate\Http\JsonResponse;
+use App\Constants\ResponseCode;
 
 class ResponseHelper
 {
@@ -14,8 +15,12 @@ class ResponseHelper
      * @param int $code
      * @return JsonResponse
      */
-    public static function successResponse($data = [], $msg = '操作成功', $code = 200)
+    public static function successResponse($data = [], $msg = ResponseCode::SUCCESS[1], $code = ResponseCode::SUCCESS[0])
     {
+        if (is_array($msg)) {
+            $code = $msg[0];
+            $msg = $msg[1];
+        }
         return response()->json([
             'code' => $code,
             'msg' => $msg,
@@ -30,8 +35,12 @@ class ResponseHelper
      * @param int $code
      * @return JsonResponse
      */
-    public static function errorResponse($msg = '操作失败', $code = 400)
+    public static function errorResponse($msg = ResponseCode::FAIL[1], $code = ResponseCode::FAIL[0])
     {
+        if (is_array($msg)) {
+            $code = $msg[0];
+            $msg = $msg[1];
+        }
         return response()->json([
             'code' => $code,
             'msg' => $msg,

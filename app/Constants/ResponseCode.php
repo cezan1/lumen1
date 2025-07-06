@@ -6,6 +6,7 @@ class ResponseCode
 {
     // 成功码
     const SUCCESS = [200, '操作成功'];
+    const FAIL = [400, '操作失败'];
     //账号相关
     const ACCOUNT_NOT_FOUND = [6001, '账号未找到'];
     const ACCOUNT_PASSWORD_ERROR = [6002, '账号密码错误']; 
@@ -33,8 +34,12 @@ class ResponseCode
 
     
     // 认证相关错误码
-    const UNAUTHORIZED = [401, '未登录或登录状态已过期'];
+    const LOGIN_FAILED = [401, '登录失败'];
+    const UNAUTHORIZED = [401, '未登录'];
+    const PASSWORD_ERROR = [401, '密码错误'];
+    const RELOGIN = [402, '请重新登录'];
+
 
     // 可按需添加更多错误码
-    // const ANOTHER_ERROR = [500, '服务器内部错误'];
+    const ANOTHER_ERROR = [500, '服务器内部错误'];
 }

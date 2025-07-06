@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use App\Utils\RedisHelper;
 use App\Utils\ResponseHelper;
+use App\Constants\ResponseCode;
 
 class AuthController extends BaseController
 {
@@ -43,7 +44,7 @@ class AuthController extends BaseController
             'password' => Hash::make($request->password),
         ]);
 
-        return ResponseHelper::successResponse($user, '注册成功', 201);
+        return ResponseHelper::successResponse($user);
     }
 
     /**
@@ -63,9 +64,8 @@ class AuthController extends BaseController
         ]);
 
         $credentials = $request->only(['email', 'password']);
-
         if (! $token = Auth::attempt($credentials)) {
-            return ResponseHelper::errorResponse('Unauthorized', 401);
+            return ResponseHelper::errorResponse(ResponseCode::PASSWORD_ERROR);
         }
 
         $user = Auth::user();

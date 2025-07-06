@@ -39,18 +39,19 @@ class Authenticate
     public function handle($request, Closure $next, $guard = null)
     {
         $guard = $guard ?? 'api';
+        // 检查是否有token
         if ($this->auth->guard($guard)->guest()) {
-            return ResponseHelper::errorResponse(ResponseCode::UNAUTHORIZED[1], ResponseCode::UNAUTHORIZED[0]);
+            return ResponseHelper::errorResponse(ResponseCode::UNAUTHORIZED);
         }
-
+        //校验token
         $user = $this->auth->guard($guard)->user();
         $token = $request->bearerToken();
         $storedToken = RedisHelper::get("user:{$user->id}:token");
-
         if ($token !== $storedToken) {
-            return ResponseHelper::errorResponse(ResponseCode::UNAUTHORIZED[1], ResponseCode::UNAUTHORIZED[0]);
-        }
 
+            return ResponseHelper::errorResponse(ResponseCode::RELOGIN);
+        }
+        //已登录
         return $next($request);
     }
 }

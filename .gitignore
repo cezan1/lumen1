@@ -5,3 +5,4 @@ Homestead.yaml
 .env
 .phpunit.result.cache
 run_jwt_install.bat
+.vscode/launch.json
