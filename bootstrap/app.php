@@ -25,6 +25,11 @@ $app->withFacades();
 
 $app->withEloquent();
 
+$app->configure('app');
+$app->instance('config', $app['config']);
+$app->instance('env', env('APP_ENV', 'production'));
+$app->instance('debug', env('APP_DEBUG', false));
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings

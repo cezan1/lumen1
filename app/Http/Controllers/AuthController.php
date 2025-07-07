@@ -71,7 +71,7 @@ class AuthController extends BaseController
         $user = Auth::user();
         RedisHelper::set("user:{$user->id}:token", $token, 1800);
 
-        return ResponseHelper::successResponse($this->respondWithToken($token)->getData(), '登录成功');
+        return ResponseHelper::successResponse($this->respondWithToken($token)->getData(), ResponseCode::LOGIN_SUCCESS);
     }
 
     /**
@@ -81,13 +81,15 @@ class AuthController extends BaseController
      */
     public function getUserInfo()
     {
-        return ResponseHelper::successResponse(Auth::user(), '获取用户信息成功');
+        return ResponseHelper::successResponse(Auth::user(), ResponseCode::GET_USER_INFO_SUCCESS);
     }
 
     /**
      * 退出登录
      *
      * @return \Illuminate\Http\JsonResponse
+     * @see \Tymon\JWTAuth\JWTGuard
+
      */
     public function logout()
     {
@@ -96,7 +98,7 @@ class AuthController extends BaseController
             RedisHelper::delete("user:{$user->id}:token");
         }
         Auth::logout();
-        return ResponseHelper::successResponse([], '退出登录成功');
+        return ResponseHelper::successResponse([], ResponseCode::LOGOUT_SUCCESS);
     }
 
     /**
@@ -109,7 +111,7 @@ class AuthController extends BaseController
         $user = Auth::user();
         $newToken = Auth::refresh();
         RedisHelper::set("user:{$user->id}:token", $newToken, 1800);
-        return ResponseHelper::successResponse($this->respondWithToken($newToken)->getData(), '令牌刷新成功');
+        return ResponseHelper::successResponse($this->respondWithToken($newToken)->getData(), ResponseCode::TOKEN_REF_SUCCESS);
     }
 
     /**

@@ -16,7 +16,7 @@ class RedisHelper
      * 获取 Redis 连接实例
      * @return \Predis\Client
      */
-    protected static function getRedis()
+    public static function getRedis(): object
     {
         if (!self::$redis) {
             self::$redis = new Client([
@@ -35,7 +35,7 @@ class RedisHelper
      * @param int|null $expire 过期时间（秒），null 表示不过期
      * @return bool
      */
-    public static function set(string $key, $value, ?int $expire = null):object
+    public static function set(string $key, $value, ?int $expire = null): object
     {
         $result = self::getRedis()->set($key, $value);
         if ($expire && $result) {
@@ -158,5 +158,17 @@ class RedisHelper
     public static function rpop(string $key): ?string
     {
         return self::getRedis()->rpop($key);
+    }
+
+
+    /**
+     * 阻塞式从列表右侧弹出元素
+     * @param string $key 列表键名
+     * @param int $timeout 超时时间（秒），0 表示无限等待
+     * @return array|null 包含键名和弹出元素的数组，超时返回 null
+     */
+    public static function brpop(string $key, int $timeout): ?array
+    {
+        return self::getRedis()->brpop($key, $timeout);
     }
 }

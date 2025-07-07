@@ -40,21 +40,25 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         $router->post('store', 'ProductController@store');
         
         // 获取单个商品详情
-        $router->get('show/{id}', 'ProductController@show');
+        $router->get('get_one/{id}', 'ProductController@show');
         
         // 更新商品信息
-        $router->put('update/{id}', 'ProductController@update');
+        $router->post('update/{id}', 'ProductController@update');
         
         // 删除商品
-        $router->delete('delete/{id}', 'ProductController@destroy');
+        $router->post('delete/{id}', 'ProductController@destroy');
+    });
+
+    // 抢购接口分组
+    $router->group(['prefix' => 'api/seckill'], function () use ($router) {
+        // 商品抢购接口
+        $router->post('getSeckill', 'SeckillController@getSeckill');
+        
+        // 查询抢购成功订单接口
+        $router->get('orders', 'SeckillController@getSuccessfulSeckillOrders');
+        
+        // 启动抢购活动接口
+        $router->post('start', 'SeckillController@startSeckillActivity');
     });
 });
 
-// 未分组的秒杀接口，todo 需确认是否需要认证
-$router->group(['prefix' => 'api/seckill'], function () use ($router) {
-    // 参与秒杀
-    $router->post('', 'SeckillController@seckill');
-    
-    // 获取秒杀成功订单
-    $router->get('orders', 'SeckillController@getSuccessfulSeckillOrders');
-});

@@ -11,15 +11,37 @@ use App\Utils\ResponseHelper;
 
 class ProductController extends Controller
 {
+
     /**
      * 获取所有商品列表
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
-        return ResponseHelper::successResponse($products);
+        $validator = Validator::make($request->all(), [
+            'page_size' => 'integer|min:1|max:100',
+            'page' => 'integer|min:1',
+            'category_id' => 'integer'
+        ]);
+        if ($validator->fails()) {
+            return ResponseHelper::errorResponse(ResponseCode::PAGE_SIZE_INVALID);
+        }
+        $pageSize = $request->input('page_size', 10);
+        $page = $request->input('page', 1);
+        $categoryId = $request->input('category_id');
+        $query = Product::query();
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+        $products = $query->paginate($pageSize, ['*'], 'page', $page);
+        $result = [
+            'items' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'total_page' => $products->lastPage(),
+            'total' => $products->total()
+        ];
+        return ResponseHelper::successResponse($result);
     }
 
     /**
@@ -109,6 +131,6 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        return response()->json(['message' => '商品删除成功'], 200);
+        return ResponseHelper::successResponse([],ResponseCode::SUCCESS);
     }
 }

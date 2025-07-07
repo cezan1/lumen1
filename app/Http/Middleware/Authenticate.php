@@ -48,7 +48,6 @@ class Authenticate
         $token = $request->bearerToken();
         $storedToken = RedisHelper::get("user:{$user->id}:token");
         if ($token !== $storedToken) {
-
             return ResponseHelper::errorResponse(ResponseCode::RELOGIN);
         }
         //已登录

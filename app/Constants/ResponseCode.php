@@ -34,6 +34,11 @@ class ResponseCode
 
     
     // 认证相关错误码
+    const LOGOUT_SUCCESS = [200, '退出成功'];
+    const LOGIN_SUCCESS = [200, '登录成功'];
+    const GET_USER_INFO_SUCCESS = [200, '获取用户信息成功'];
+    const TOKEN_REF_SUCCESS = [200, '刷新令牌成功'];
+    const TOKEN_INVALID = [401, 'token无效'];
     const LOGIN_FAILED = [401, '登录失败'];
     const UNAUTHORIZED = [401, '未登录'];
     const PASSWORD_ERROR = [401, '密码错误'];
@@ -42,4 +47,7 @@ class ResponseCode
 
     // 可按需添加更多错误码
     const ANOTHER_ERROR = [500, '服务器内部错误'];
+
+    // 分页错误码
+    const PAGE_SIZE_INVALID = [400, '分页参数错误'];
 }
